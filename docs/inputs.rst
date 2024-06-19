@@ -93,10 +93,21 @@ imageJ and suite2p can recognize (see matlab tiff writing
 Bruker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+**Single Page Tifs**:
 Using Bruker Prairie View system, .RAW files are batch converted to single .ome.tifs.
 Now, you can load the resulting multiple tif files (i.e. one per frame per channel) to suite2p to be converted to binary.
 This looks for files containing 'Ch1', and will assume all additional files are 'Ch2'.
 Select "input_format" as "bruker" in the drop down menu in the GUI or set ``ops['input_format'] = "bruker"``.
+
+**Multi Page Tifs**:
+To speed up the processing of input from bruker scopes, we recommend you save your .RAW files as multipage tifs.  This can be done using the Bruker Prairie View system. 
+
+In the PrairieView software, set your preferences to convert your raw files to multipage TIFFs. 
+
+* Preferences > Save Multipage TIFFs
+* Preferences > Automatically Convert Raw Files > After Acquisition
+
+This will cause the GUI to be unresponsive for some time after each acquisition. This should work for both single-channel and 2-channel recordings.
 
 Mesoscope tiffs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,10 +129,10 @@ you're using this and having trouble because it's not straightforward.
 Thorlabs raw files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Christoph Schmidt-Hieber (@neurodroid) has written `haussmeister`_ which
-can load and convert ThorLabs \*.raw files to suite2p binary files!
-suite2p will automatically use this if you have pip installed it
-(``pip install haussmeister``).
+Suite2p has been upgraded with internal support for Thorlabs raw files (Yael Prilutski).
+Specify "raw" for "input_format".
+Designed to work with one or several planes and/or channels.
+
 
 .. _hdf5-files-and-sbx:
 
@@ -148,10 +159,18 @@ Scanbox binary files (*.sbx) work out of the box if you set ``ops['input_format'
 When recording in bidirectional mode some columns might have every other line saturated; to trim these during loading set ``ops['sbx_ndeadcols']``. Set this option to ``-1`` to let suite2p compute the number of columns automatically, a positive integer to specify the number of columns to trim.
 Joao Couto (@jcouto) wrote the binary sbx parser.
 
-BinaryRWFile
+
+Nikon nd2 files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Suite2p reads nd2 files using the nd2 package and returns a numpy array representing the data with a minimum of two dimensions (Height, Width). The data can also have additional dimensions for Time, Depth, and Channel. If any dimensions are missing, Suite2p adds them in the order of Time, Depth, Channel, Height, and Width, resulting in a 5-dimensional array. To use Suite2p with nd2 files, simply set ``ops['input_format'] = "nd2".``
+
+
+
+BinaryFile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``BinaryRWFile`` is a special class in suite2p that is used to read/write imaging data and acts like a Numpy Array. Inputs of any format listed above will be converted into a ``BinaryRWFile`` before being passed in through the suite2p pipeline. An input file can easily be changed to a ``BinaryRWFile`` in the following way: 
+The ``BinaryFile`` is a special class in suite2p that is used to read/write imaging data and acts like a Numpy Array. Inputs of any format listed above will be converted into a ``BinaryFile`` before being passed in through the suite2p pipeline. An input file can easily be changed to a ``BinaryFile`` in the following way: 
 
 ::
 
@@ -159,10 +178,10 @@ The ``BinaryRWFile`` is a special class in suite2p that is used to read/write im
 
    fname = "gt1.tif" # Let's say input is of shape (4200, 325, 556)
    Lx, Ly = 556, 326 # Lx and Ly are the x and y dimensions of the imaging input
-   # Read in our input tif and convert it to a BinaryRWFile
-   f_input = suite2p.io.BinaryRWFile(Ly=Ly, Lx=Lx, filename=fname)
+   # Read in our input tif and convert it to a BinaryFile
+   f_input = suite2p.io.BinaryFile(Ly=Ly, Lx=Lx, filename=fname)
 
-``BinaryRWFile`` can work with any of the input formats above. For instance, if you'd like to convert an input binary file, you can do the following:
+``BinaryFile`` can work with any of the input formats above. For instance, if you'd like to convert an input binary file, you can do the following:
 
 ::
 
