@@ -1,47 +1,78 @@
 import setuptools
 
-install_deps = ['importlib-metadata',
-        'natsort',
-        'rastermap>0.1.0',
-        'tifffile',
-        'scanimage-tiff-reader>=1.4.1',
-        'torch==1.11.0',
-        'paramiko',
-        'numpy>=1.16',
-        'numba>=0.43.1',
-        'matplotlib',
-        'scipy>=1.9.0',
-        'h5py',
-        'sbxreader',
-        'scikit-learn',
-        'cellpose']
+install_deps = ["importlib-metadata",
+        "natsort",
+        "rastermap>=0.9.0",
+        "tifffile",
+        "torch>=1.13.1",
+        "numpy>=1.24.3",
+        "numba>=0.57.0",
+        "matplotlib",
+        "scipy>=1.9.0",
+        "scikit-learn",
+        "cellpose",
+        "scanimage-tiff-reader>=1.4.1"
+        ]
 
 gui_deps = [
-        "pyqt5",
-        "pyqt5-tools",
-        "pyqt5.sip",
-        'pyqtgraph',
-        'rastermap>0.1.0',
+        "qtpy",
+        "pyqt6",
+        "pyqt6.sip",
+        "pyqtgraph",
       ]
+
+io_deps = [
+    "paramiko",
+    "nd2",
+    "sbxreader",
+    "h5py",
+    "opencv-python-headless",
+    "xmltodict",
+    "dcimg"
+]
 
 nwb_deps = [
-        "pynwb",
+        "pynwb>=2.3.2",
       ]
-test_deps = [
-      'pytest',
-      'tenacity',
-      'tqdm',
-      'pytest-qt==3.3.0',
-    ]
 
-all_deps = gui_deps + nwb_deps + test_deps
+test_deps = [
+      "pytest",
+      "tenacity",
+      "tqdm",
+      "pynwb>=2.3.2", #this is needed as test_io contains a test with nwb
+      "pytest-qt>3.3.0",
+]
+
+# check if pyqt/pyside already installed
+try:
+    import PyQt5
+    gui_deps.remove("pyqt6")
+    gui_deps.remove("pyqt6.sip")
+except:
+    pass
+
+try:
+    import PySide2
+    gui_deps.remove("pyqt6")
+    gui_deps.remove("pyqt6.sip")
+except:
+    pass
+
+try:
+    import PySide6
+    gui_deps.remove("pyqt6")
+    gui_deps.remove("pyqt6.sip")
+except:
+    pass
+
+all_deps = gui_deps + nwb_deps + test_deps + io_deps 
 
 try:
     import torch
     a = torch.ones(2, 3)
-    version = int(torch.__version__[2])
-    if version >= 6:
-        install_deps.remove('torch>=1.7.1')
+    major_version, minor_version, _ = torch.__version__.split(".")
+    if major_version == "2" or int(minor_version) >= 6:
+        install_deps.remove("torch>=1.6")
 except:
     pass
 
@@ -58,22 +89,23 @@ setuptools.setup(
     url="https://github.com/MouseLand/suite2p",
     packages=setuptools.find_packages(),
     setup_requires=[
-      'pytest-runner',
-      'setuptools_scm',
+      "pytest-runner",
+      "setuptools_scm",
     ],
     use_scm_version=True,
     install_requires=install_deps,
     tests_require=test_deps,
     extras_require={
       "docs": [
-        'sphinx>=3.0',
-        'sphinxcontrib-apidoc',
-        'sphinx_rtd_theme',
-        'sphinx-prompt',
-        'sphinx-autodoc-typehints',
+        "sphinx>=3.0",
+        "sphinxcontrib-apidoc",
+        "sphinx_rtd_theme",
+        "sphinx-prompt",
+        "sphinx-autodoc-typehints",
       ],
       "gui": gui_deps,
       "nwb": nwb_deps,
+      "io": io_deps,
       "tests": test_deps,
       "all": all_deps,
     },
@@ -84,10 +116,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
       entry_points = {
-        'console_scripts': [
-          'suite2p = suite2p.__main__:main',
-          'reg_metrics = benchmarks.registration_metrics:main',
-          'tiff2scanimage = scripts.make_tiff_scanimage_compatible:main',
+        "console_scripts": [
+          "suite2p = suite2p.__main__:main",
+          "reg_metrics = benchmarks.registration_metrics:main",
+          "tiff2scanimage = scripts.make_tiff_scanimage_compatible:main",
         ]
         },
 )
